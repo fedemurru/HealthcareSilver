@@ -21,7 +21,7 @@ export default function HeroSection() {
 				<p className="text-lg">We provide the best services for you.</p>
 				<div className="mt-10 flex justify-center space-x-4">
 					{/* "Our Work" Button */}
-					<Link href="/services">
+					<Link href="/patients/register">
 						<p className=" bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-opacity-90 transition">
 							Book Now
 						</p>
