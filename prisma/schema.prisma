@@ -21,3 +21,13 @@ model Patient {
   address   String
   createdAt DateTime @default(now())
 }
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String
+  date      DateTime
+  time      String
+  createdAt DateTime @default(now())
+}

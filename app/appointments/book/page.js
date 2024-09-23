@@ -1,18 +1,28 @@
-// app/patients/register/page.js
-
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function PatientRegister() {
+export default function BookAppointment() {
+	const searchParams = useSearchParams();
+
 	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
 		phone: "",
-		address: "",
+		date: "",
+		time: "",
 	});
-	const router = useRouter(); // Router for navigation
+
+	// Use effect to pre-fill form with passed data
+	useEffect(() => {
+		setFormData({
+			...formData,
+			name: searchParams.get("name") || "",
+			email: searchParams.get("email") || "",
+			phone: searchParams.get("phone") || "",
+		});
+	}, [formData, searchParams]);
 
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,25 +31,16 @@ export default function PatientRegister() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		const res = await fetch("/api/patients/register", {
+		const res = await fetch("/api/appointments/book", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(formData),
 		});
 
 		if (res.ok) {
-			const registeredPatient = await res.json();
-			// Redirect to the booking page with patient data in the query params
-			router.push({
-				pathname: "/appointments/book",
-				query: {
-					name: formData.name,
-					email: formData.email,
-					phone: formData.phone,
-				},
-			});
+			alert("Appointment booked successfully!");
 		} else {
-			alert("Error registering patient");
+			alert("Error booking appointment");
 		}
 	};
 
@@ -49,7 +50,7 @@ export default function PatientRegister() {
 				onSubmit={handleSubmit}
 				className="bg-white p-6 rounded-lg shadow-md w-96"
 			>
-				<h2 className="text-xl font-bold mb-4">New Patient Registration</h2>
+				<h2 className="text-xl font-bold mb-4">Book an Appointment</h2>
 				<div className="mb-4">
 					<label
 						className="block text-gray-700 text-sm font-bold mb-2"
@@ -63,7 +64,7 @@ export default function PatientRegister() {
 						value={formData.name}
 						onChange={handleInputChange}
 						className="w-full p-2 border border-gray-300 rounded"
-						required
+						readOnly
 					/>
 				</div>
 				<div className="mb-4">
@@ -79,7 +80,7 @@ export default function PatientRegister() {
 						value={formData.email}
 						onChange={handleInputChange}
 						className="w-full p-2 border border-gray-300 rounded"
-						required
+						readOnly
 					/>
 				</div>
 				<div className="mb-4">
@@ -95,14 +96,46 @@ export default function PatientRegister() {
 						value={formData.phone}
 						onChange={handleInputChange}
 						className="w-full p-2 border border-gray-300 rounded"
+						readOnly
+					/>
+				</div>
+				<div className="mb-4">
+					<label
+						className="block text-gray-700 text-sm font-bold mb-2"
+						htmlFor="date"
+					>
+						Date
+					</label>
+					<input
+						type="date"
+						name="date"
+						value={formData.date}
+						onChange={handleInputChange}
+						className="w-full p-2 border border-gray-300 rounded"
+						required
+					/>
+				</div>
+				<div className="mb-4">
+					<label
+						className="block text-gray-700 text-sm font-bold mb-2"
+						htmlFor="time"
+					>
+						Time
+					</label>
+					<input
+						type="time"
+						name="time"
+						value={formData.time}
+						onChange={handleInputChange}
+						className="w-full p-2 border border-gray-300 rounded"
 						required
 					/>
 				</div>
 				<button
 					type="submit"
-					className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+					className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
 				>
-					Register
+					Book Appointment
 				</button>
 			</form>
 		</div>
