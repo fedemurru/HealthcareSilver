@@ -1,21 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function BookAppointment() {
 	const searchParams = useSearchParams();
 	const patientId = searchParams.get("patientId");
 
+	const [patient, setPatient] = useState(null); // Store patient details
 	const [formData, setFormData] = useState({
 		date: "",
 		time: "",
 	});
-
 	const [availableTimes, setAvailableTimes] = useState([]);
 	const [bookedTimes, setBookedTimes] = useState([]);
 	const [error, setError] = useState(null);
-	const router = useRouter(); // Use Next.js router for redirection
 
 	const times = [
 		"09:00",
@@ -28,6 +27,27 @@ export default function BookAppointment() {
 		"16:00",
 		"17:00",
 	];
+
+	// Fetch patient details when the component mounts
+	useEffect(() => {
+		const fetchPatientDetails = async () => {
+			try {
+				const res = await fetch(`/api/patients/${patientId}`);
+				if (!res.ok) {
+					throw new Error(`Failed to fetch patient: ${res.status}`);
+				}
+				const data = await res.json();
+				setPatient(data.patient);
+			} catch (error) {
+				console.error("Failed to fetch patient details:", error);
+				setPatient(null);
+			}
+		};
+
+		if (patientId) {
+			fetchPatientDetails();
+		}
+	}, [patientId]);
 
 	// Fetch unavailable times when the date changes
 	useEffect(() => {
@@ -53,6 +73,7 @@ export default function BookAppointment() {
 	useEffect(() => {
 		const filteredTimes = times.filter((time) => !bookedTimes.includes(time));
 		setAvailableTimes(filteredTimes);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [bookedTimes]);
 
 	const handleInputChange = (e) => {
@@ -70,8 +91,8 @@ export default function BookAppointment() {
 		});
 
 		if (res.ok) {
-			// Redirect to the success page after successful booking
-			router.push("/appointments/book/success");
+			// Redirect to success page (you've already implemented this part)
+			router.push("/appointments/success");
 		} else {
 			const data = await res.json();
 			setError(data.error || "Failed to book appointment.");
@@ -84,6 +105,17 @@ export default function BookAppointment() {
 				onSubmit={handleSubmit}
 				className="bg-white p-6 rounded-lg shadow-md w-96"
 			>
+				{/* Dynamic Greeting Section */}
+				<h1 className="text-2xl font-bold text-center mb-4">
+					{patient ? `Welcome, ${patient.name}!` : "Loading..."}
+				</h1>
+				<p className="text-center text-gray-600 mb-6">
+					{patient
+						? "Now, let's book your first appointment."
+						: "We're fetching your details..."}
+				</p>
+
+				{/* Appointment Form Section */}
 				<h2 className="text-xl font-bold mb-4">Book an Appointment</h2>
 				{error && <p className="text-red-500 mb-4">{error}</p>}
 
