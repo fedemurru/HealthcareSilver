@@ -146,32 +146,34 @@ export default function BookAppointment() {
 					<Select
 						options={timeOptions}
 						styles={{
-							control: (provided) => ({
+							control: (provided, state) => ({
 								...provided,
-								backgroundColor: "#ffffff", // White background
-								borderColor: "#d1d5db", // Gray-300 border to match date input
-								padding: "0.5rem 1rem", // Padding similar to date input
-								fontSize: "1.125rem", // Font size (text-lg in Tailwind)
-								color: "#374151", // Tailwind gray-700 for text color
-								borderRadius: "0.375rem", // Rounded corners
-								boxShadow: "none", // Remove default shadow
-								height: "auto", // Auto height to match inputs
+								backgroundColor: "#ffffff",
+								borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // Change border on focus (Tailwind blue-500)
+								padding: "0.6rem 1rem",
+								fontSize: "1.125rem",
+								color: "#374151",
+								borderRadius: "0.375rem",
+								boxShadow: state.isFocused
+									? "0 0 0 2px rgba(59, 130, 246, 0.5)" // Focus ring equivalent to `focus:ring-blue-500`
+									: "none", // No shadow when not focused
+								outline: "none", // Remove default outline
 								"&:hover": {
-									borderColor: "#4b5563", // Hover border color to match date input
+									borderColor: "#4b5563", // Darker gray on hover
 								},
 							}),
 							singleValue: (provided) => ({
 								...provided,
-								color: "#374151", // Same text color as input
+								color: "#374151",
 							}),
 							menu: (provided) => ({
 								...provided,
-								borderRadius: "0.375rem", // Rounded corners for dropdown
+								borderRadius: "0.375rem",
 							}),
 						}}
 						placeholder="Select a time"
 						onChange={handleTimeChange}
-						isDisabled={availableTimes.length === 0} // Disable if no times available
+						isDisabled={availableTimes.length === 0}
 					/>
 				</div>
 
