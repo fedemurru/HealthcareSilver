@@ -5,19 +5,30 @@ export async function GET(req) {
 	const { searchParams } = new URL(req.url);
 	const date = searchParams.get("date");
 
+	if (!date) {
+		return NextResponse.json({ error: "Date is required" }, { status: 400 });
+	}
+
 	try {
-		// Fetch appointments for the selected date
-		const appointments = await prisma.appointment.findMany({
+		const selectedDate = new Date(date);
+		const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
+		const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
+
+		const bookedAppointments = await prisma.appointment.findMany({
 			where: {
-				date: new Date(date),
+				date: {
+					gte: startOfDay,
+					lte: endOfDay,
+				},
 			},
 			select: {
-				time: true, // We only need the time field
+				time: true,
 			},
 		});
 
-		const bookedTimes = appointments.map((appointment) => appointment.time);
-
+		const bookedTimes = bookedAppointments.map(
+			(appointment) => appointment.time
+		);
 		return NextResponse.json({ bookedTimes });
 	} catch (error) {
 		return NextResponse.json(
