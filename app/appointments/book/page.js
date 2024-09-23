@@ -2,7 +2,39 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Select from "react-select";
 
+// Custom styles for react-select
+const customStyles = {
+	control: (provided) => ({
+		...provided,
+		backgroundColor: "#ffffff", // White background for the select input
+		borderColor: "#4b5563", // Tailwind gray-600
+		padding: "0.75rem",
+		fontSize: "1.25rem", // Tailwind text-lg
+		color: "#000000", // Black text color
+	}),
+	singleValue: (provided) => ({
+		...provided,
+		color: "#000000", // Black selected option text
+	}),
+	option: (provided, state) => ({
+		...provided,
+		backgroundColor: state.isFocused ? "#4b5563" : "#ffffff", // Gray background on hover, white by default
+		color: state.isFocused ? "#ffffff" : "#000000", // White text on hover, black otherwise
+		fontSize: "1.25rem", // Larger font size for options
+		padding: "10px",
+		cursor: "pointer",
+	}),
+	menu: (provided) => ({
+		...provided,
+		backgroundColor: "#ffffff", // White background for the entire dropdown menu
+	}),
+	menuList: (provided) => ({
+		...provided,
+		backgroundColor: "#ffffff", // Ensure menu list background is white
+	}),
+};
 export default function BookAppointment() {
 	const searchParams = useSearchParams();
 	const patientId = searchParams.get("patientId");
@@ -80,6 +112,10 @@ export default function BookAppointment() {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
+	const handleTimeChange = (selectedOption) => {
+		setFormData({ ...formData, time: selectedOption.value });
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError(null); // Reset error state
@@ -98,6 +134,12 @@ export default function BookAppointment() {
 			setError(data.error || "Failed to book appointment.");
 		}
 	};
+
+	// Options for react-select dropdown
+	const timeOptions = availableTimes.map((time) => ({
+		value: time,
+		label: time,
+	}));
 
 	return (
 		<div className="flex items-center justify-center h-screen">
@@ -136,34 +178,20 @@ export default function BookAppointment() {
 					/>
 				</div>
 
-				{availableTimes.length > 0 ? (
-					<div className="mb-4">
-						<label
-							className="block text-gray-700 text-sm font-bold mb-2"
-							htmlFor="time"
-						>
-							Time
-						</label>
-						<select
-							name="time"
-							value={formData.time}
-							onChange={handleInputChange}
-							className="w-full p-2 border border-gray-300 rounded"
-							required
-						>
-							<option value="">Select a time</option>
-							{availableTimes.map((time) => (
-								<option key={time} value={time}>
-									{time}
-								</option>
-							))}
-						</select>
-					</div>
-				) : (
-					<p className="text-red-500">
-						No available times for this date. Please select another date.
-					</p>
-				)}
+				<div className="mb-4">
+					<label
+						className="block text-gray-700 text-sm font-bold mb-2"
+						htmlFor="time"
+					>
+						Time
+					</label>
+					<Select
+						options={timeOptions}
+						styles={customStyles}
+						placeholder="Select a time"
+						onChange={handleTimeChange}
+					/>
+				</div>
 
 				<button
 					type="submit"
