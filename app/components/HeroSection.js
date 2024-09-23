@@ -7,13 +7,13 @@ export default function HeroSection() {
 	return (
 		<div className="relative h-screen">
 			<Image
-				src="/hero.jpg"
+				src="/hero2.jpg"
 				alt="Hero Image"
 				fill
 				style={{ objectFit: "cover" }}
 				className="absolute inset-0 z-0"
 			/>
-			<div className="absolute inset-0 bg-black opacity-30 z-10"></div>
+			<div className="absolute inset-0 bg-black opacity-40 z-10"></div>
 			<div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
 				<h1 className="text-4xl font-bold mb-4 text-gray-200">
 					Welcome to Our Website
