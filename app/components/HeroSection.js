@@ -14,9 +14,9 @@ export default function HeroSection() {
 				className="absolute inset-0 z-0"
 			/>
 			<div className="absolute inset-0 bg-black opacity-40 z-10"></div>
-			<div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
-				<h1 className="text-4xl font-bold mb-4 text-gray-200">
-					Welcome to Our Website
+			<div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white ">
+				<h1 className="text-4xl font-bold mb-4 text-gray-200 px-16">
+					Welcome to Our Physiotherapy clinic
 				</h1>
 				<p className="text-lg px-16 w-full">
 					We help people recover from injuries, back pain and chronic pain to
