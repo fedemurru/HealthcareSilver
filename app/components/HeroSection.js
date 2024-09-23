@@ -18,7 +18,10 @@ export default function HeroSection() {
 				<h1 className="text-4xl font-bold mb-4 text-gray-200">
 					Welcome to Our Website
 				</h1>
-				<p className="text-lg">We provide the best services for you.</p>
+				<p className="text-lg px-16 w-full">
+					We help people recover from injuries, back pain and chronic pain to
+					come back stronger, fitter and more confident than ever.
+				</p>
 				<div className="mt-10 flex justify-center space-x-4">
 					{/* "Our Work" Button */}
 					<Link href="/patients/register">
