@@ -13,7 +13,8 @@ export async function POST(req) {
 				address,
 			},
 		});
-		return NextResponse.json({ patient });
+
+		return NextResponse.json({ id: patient.id });
 	} catch (error) {
 		return NextResponse.json(
 			{ error: "Failed to register patient" },

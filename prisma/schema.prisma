@@ -14,19 +14,18 @@ generator client {
 }
 
 model Patient {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  phone     String
-  address   String
-  createdAt DateTime @default(now())
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  phone        String
+  address      String
+  appointments Appointment[]
 }
 
 model Appointment {
   id        Int      @id @default(autoincrement())
-  name      String
-  email     String
-  phone     String
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  patientId Int
   date      DateTime
   time      String
   createdAt DateTime @default(now())
