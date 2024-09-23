@@ -126,17 +126,16 @@ export default function BookAppointment() {
 					>
 						Date
 					</label>
-					<DatePicker
-						selected={formData.date}
-						onChange={handleDateChange}
-						className="w-full p-4 text-lg border border-gray-600 rounded-lg bg-white text-gray-600"
-						dateFormat="MM/dd/yyyy"
-						placeholderText="Select a date"
+					<input
+						type="date"
+						name="date"
+						value={formData.date}
+						onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+						className="w-full p-4 text-lg border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						required
 					/>
 				</div>
 
-				{/* Time Field */}
 				<div className="mb-4">
 					<label
 						className="block text-gray-600 text-sm font-bold mb-2"
@@ -145,7 +144,31 @@ export default function BookAppointment() {
 						Time
 					</label>
 					<Select
-						options={timeOptions} // Shows only available times
+						options={timeOptions}
+						styles={{
+							control: (provided) => ({
+								...provided,
+								backgroundColor: "#ffffff", // White background
+								borderColor: "#d1d5db", // Gray-300 border to match date input
+								padding: "0.5rem 1rem", // Padding similar to date input
+								fontSize: "1.125rem", // Font size (text-lg in Tailwind)
+								color: "#374151", // Tailwind gray-700 for text color
+								borderRadius: "0.375rem", // Rounded corners
+								boxShadow: "none", // Remove default shadow
+								height: "auto", // Auto height to match inputs
+								"&:hover": {
+									borderColor: "#4b5563", // Hover border color to match date input
+								},
+							}),
+							singleValue: (provided) => ({
+								...provided,
+								color: "#374151", // Same text color as input
+							}),
+							menu: (provided) => ({
+								...provided,
+								borderRadius: "0.375rem", // Rounded corners for dropdown
+							}),
+						}}
 						placeholder="Select a time"
 						onChange={handleTimeChange}
 						isDisabled={availableTimes.length === 0} // Disable if no times available
