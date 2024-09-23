@@ -5,3 +5,4 @@ export async function GET() {
 	const patients = await prisma.patient.findMany();
 	return NextResponse.json(patients);
 }
+// ok
