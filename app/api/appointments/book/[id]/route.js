@@ -25,16 +25,19 @@ export async function PUT(req, { params }) {
 	const { newDate, newTime } = await req.json(); // Get the new date and time from the request body
 
 	try {
-		// Update the appointment in the database
+		// Update the appointment in the database and include the patient details
 		const updatedAppointment = await prisma.appointment.update({
 			where: { id: parseInt(id, 10) }, // Ensure the ID is an integer
 			data: {
 				date: new Date(newDate), // Ensure date is stored correctly
 				time: newTime,
 			},
+			include: {
+				patient: true, // Include the patient details in the response
+			},
 		});
 
-		return NextResponse.json(updatedAppointment); // Send the updated appointment data as JSON
+		return NextResponse.json(updatedAppointment); // Send the updated appointment with patient data as JSON
 	} catch (error) {
 		console.error("Error updating appointment:", error);
 		return NextResponse.json(
