@@ -5,7 +5,8 @@ export async function POST(req) {
 	const { name, email, phone, address } = await req.json();
 
 	try {
-		const patient = await prisma.patient.create({
+		// Create a new patient record in the database
+		const newPatient = await prisma.patient.create({
 			data: {
 				name,
 				email,
@@ -14,10 +15,11 @@ export async function POST(req) {
 			},
 		});
 
-		return NextResponse.json({ id: patient.id });
+		return NextResponse.json(newPatient);
 	} catch (error) {
+		console.error("Error registering patient:", error);
 		return NextResponse.json(
-			{ error: "Failed to register patient" },
+			{ error: "Error registering patient" },
 			{ status: 500 }
 		);
 	}
