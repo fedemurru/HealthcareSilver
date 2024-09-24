@@ -2,9 +2,17 @@
 
 import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
-import RescheduleModal from "../../components/RescheduleModal"; // Import the Reschedule Modal
+import RescheduleModal from "../../components/RescheduleModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AppointmentsTable from "../../components/AppointmentsTable";
+
+// Import helper functions
+import {
+	fetchAppointments,
+	cancelAppointment,
+	rescheduleAppointment,
+} from "../../lib/apiHelpers";
 
 const AdminDashboard = () => {
 	const [appointments, setAppointments] = useState([]);
@@ -12,24 +20,56 @@ const AdminDashboard = () => {
 	const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 	const [selectedAppointment, setSelectedAppointment] = useState(null);
 
+	// Fetch appointments when the component mounts
 	useEffect(() => {
-		const fetchAppointments = async () => {
-			try {
-				const response = await fetch("/api/appointments/book");
-				if (!response.ok) {
-					console.error("Failed to fetch appointments");
-					return;
-				}
-				const data = await response.json();
-				setAppointments(data);
-			} catch (error) {
-				console.error("Error fetching appointments:", error);
-			}
+		const loadAppointments = async () => {
+			const data = await fetchAppointments();
+			setAppointments(data);
 		};
-		fetchAppointments();
+		loadAppointments();
 	}, []);
 
-	// Open the modal and store the selected appointment for cancelation
+	// Handle canceling the appointment
+	const handleCancelConfirm = async () => {
+		if (!selectedAppointment) return;
+		const success = await cancelAppointment(selectedAppointment.id);
+
+		if (success) {
+			setAppointments((prev) =>
+				prev.filter((appointment) => appointment.id !== selectedAppointment.id)
+			);
+			toast.success("Appointment canceled successfully");
+			closeModal();
+		} else {
+			toast.error("Failed to cancel appointment");
+		}
+	};
+
+	// Handle rescheduling the appointment
+	const handleRescheduleConfirm = async (newDate, newTime) => {
+		if (!selectedAppointment) return;
+
+		const updatedAppointment = await rescheduleAppointment(
+			selectedAppointment.id,
+			newDate,
+			newTime
+		);
+
+		if (updatedAppointment) {
+			setAppointments((prev) =>
+				prev.map((appointment) =>
+					appointment.id === updatedAppointment.id
+						? updatedAppointment
+						: appointment
+				)
+			);
+			toast.success("Appointment rescheduled successfully");
+			setIsRescheduleModalOpen(false);
+		} else {
+			toast.error("Failed to reschedule appointment");
+		}
+	};
+
 	const openModal = (appointment) => {
 		setSelectedAppointment(appointment);
 		setIsModalOpen(true);
@@ -40,76 +80,9 @@ const AdminDashboard = () => {
 		setIsModalOpen(false);
 	};
 
-	const handleCancelConfirm = async () => {
-		if (!selectedAppointment) return;
-
-		try {
-			const response = await fetch(
-				`/api/appointments/book/${selectedAppointment.id}`,
-				{
-					method: "DELETE",
-				}
-			);
-
-			if (response.ok) {
-				setAppointments(
-					appointments.filter(
-						(appointment) => appointment.id !== selectedAppointment.id
-					)
-				);
-				toast.success("Appointment canceled successfully");
-				closeModal(); // Close the modal after canceling
-			} else {
-				console.error("Failed to cancel appointment");
-				toast.error("Failed to cancel appointment");
-			}
-		} catch (error) {
-			console.error("Error canceling appointment:", error);
-			toast.error("Error canceling appointment");
-		}
-	};
-
-	// Open the reschedule modal and store the selected appointment
 	const openRescheduleModal = (appointment) => {
 		setSelectedAppointment(appointment);
 		setIsRescheduleModalOpen(true);
-	};
-
-	// Handle rescheduling
-	const handleRescheduleConfirm = async (newDate, newTime) => {
-		if (!selectedAppointment) return;
-
-		try {
-			const response = await fetch(
-				`/api/appointments/book/${selectedAppointment.id}`,
-				{
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ newDate, newTime }),
-				}
-			);
-
-			if (response.ok) {
-				const updatedAppointment = await response.json();
-				setAppointments((prevAppointments) =>
-					prevAppointments.map((appointment) =>
-						appointment.id === updatedAppointment.id
-							? updatedAppointment
-							: appointment
-					)
-				);
-				toast.success("Appointment rescheduled successfully");
-				setIsRescheduleModalOpen(false); // Close the modal after successful rescheduling
-			} else {
-				console.error("Failed to reschedule appointment");
-				toast.error("Failed to reschedule appointment");
-			}
-		} catch (error) {
-			console.error("Error rescheduling appointment:", error);
-			toast.error("Error rescheduling appointment");
-		}
 	};
 
 	const closeRescheduleModal = () => {
@@ -120,47 +93,11 @@ const AdminDashboard = () => {
 	return (
 		<div className="min-h-screen p-6 bg-gray-100">
 			<h1 className="text-2xl mb-6">Admin Dashboard</h1>
-			<table className="table-auto w-full bg-white rounded shadow-md">
-				<thead>
-					<tr>
-						<th className="px-4 py-2">Patient Name</th>
-						<th className="px-4 py-2">Email</th>
-						<th className="px-4 py-2">Date</th>
-						<th className="px-4 py-2">Time</th>
-						<th className="px-4 py-2">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{appointments.map((appointment) => (
-						<tr key={appointment.id}>
-							<td className="border px-4 py-2">
-								{appointment.patient?.name || "Unknown"}
-							</td>
-							<td className="border px-4 py-2">
-								{appointment.patient?.email || "No Email"}
-							</td>
-							<td className="border px-4 py-2">
-								{new Date(appointment.date).toLocaleDateString()}
-							</td>
-							<td className="border px-4 py-2">{appointment.time}</td>
-							<td className="border px-4 py-2">
-								<button
-									onClick={() => openRescheduleModal(appointment)} // Open the reschedule modal
-									className="bg-yellow-500 text-white px-4 py-1 rounded mr-2"
-								>
-									Reschedule
-								</button>
-								<button
-									onClick={() => openModal(appointment)} // Open cancel modal
-									className="bg-red-500 text-white px-4 py-1 rounded"
-								>
-									Cancel
-								</button>
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
+			<AppointmentsTable
+				appointments={appointments}
+				openRescheduleModal={openRescheduleModal}
+				openCancelModal={openModal}
+			/>
 			<ToastContainer />
 
 			{/* Reschedule Modal */}
