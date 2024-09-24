@@ -1,28 +1,21 @@
 // pages/api/appointments/book/[id].js
 import prisma from "../../../../lib/prisma";
+import { NextResponse } from "next/server";
 
-export default async function handler(req, res) {
-	const { id } = req.query;
+export async function DELETE(req, { params }) {
+	const { id } = params; // Get the appointment ID from the URL params
 
-	if (req.method === "DELETE") {
-		try {
-			await prisma.appointment.delete({
-				where: { id: parseInt(id, 10) },
-			});
-			res.status(204).end(); // No content, operation successful
-		} catch (error) {
-			res.status(500).json({ error: "Error deleting appointment" });
-		}
-	} else if (req.method === "PUT") {
-		const { newTime } = req.body;
-		try {
-			const appointment = await prisma.appointment.update({
-				where: { id: parseInt(id, 10) },
-				data: { time: newTime },
-			});
-			res.status(200).json(appointment);
-		} catch (error) {
-			res.status(500).json({ error: "Error updating appointment" });
-		}
+	try {
+		await prisma.appointment.delete({
+			where: { id: parseInt(id, 10) }, // Ensure the ID is correctly parsed to an integer
+		});
+
+		return NextResponse.json({ message: "Appointment canceled successfully" });
+	} catch (error) {
+		console.error("Error canceling appointment:", error);
+		return NextResponse.json(
+			{ error: "Error canceling appointment" },
+			{ status: 500 }
+		);
 	}
 }

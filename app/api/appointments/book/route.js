@@ -7,7 +7,7 @@ export async function POST(req) {
 	try {
 		const newAppointment = await prisma.appointment.create({
 			data: {
-				patientId: patientId, // Link the appointment to the patient
+				patientId: parseInt(patientId, 10), // Link the appointment to the patient
 				date: new Date(date), // Ensure the date is a valid DateTime
 				time: time,
 			},
