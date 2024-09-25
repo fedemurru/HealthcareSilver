@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Select from "react-select";
@@ -176,5 +177,13 @@ export default function BookAppointment() {
 				</button>
 			</form>
 		</div>
+	);
+}
+
+export function SuspenseWrapper() {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<BookAppointment />
+		</Suspense>
 	);
 }
