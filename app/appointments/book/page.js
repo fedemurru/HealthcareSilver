@@ -6,14 +6,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 
-//const apiUrl = process.env.NEXT_PUBLIC_API_URL || null;
-
+// Set the API URL with proper fallback handling
 const apiUrl =
 	process.env.NODE_ENV === "development"
 		? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-		: null; // In production, return null if no API is set
-
-// Handle case when API URL is not available
+		: process.env.NEXT_PUBLIC_API_URL || null;
 
 // Define all possible time slots
 const times = [
@@ -28,7 +25,7 @@ const times = [
 	"17:00",
 ];
 
-export default function BookAppointment() {
+function AppointmentForm() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const patientId = searchParams.get("patientId");
@@ -44,10 +41,8 @@ export default function BookAppointment() {
 				if (!apiUrl) {
 					if (process.env.NODE_ENV === "production") {
 						console.error("API URL is not available in production.");
-						// Optionally, disable features that require API in production
-						return (
-							<div>API is currently not available. Please try again later.</div>
-						);
+						setError("API is currently not available. Please try again later.");
+						return;
 					} else {
 						console.error("API URL is not set in development.");
 						return null;
@@ -91,9 +86,12 @@ export default function BookAppointment() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError(null);
+
 		if (!apiUrl) {
-			return null;
+			setError("API is currently unavailable. Please try again later.");
+			return;
 		}
+
 		const res = await fetch(`${apiUrl}/api/appointments/book`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -196,10 +194,10 @@ export default function BookAppointment() {
 	);
 }
 
-export function SuspenseWrapper() {
+export default function BookAppointmentPage() {
 	return (
 		<Suspense fallback={<div>Loading...</div>}>
-			<BookAppointment />
+			<AppointmentForm />
 		</Suspense>
 	);
 }
