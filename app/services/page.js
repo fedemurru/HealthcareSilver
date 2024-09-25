@@ -41,8 +41,6 @@ async function WorkPage() {
 			</header>
 
 			<main className="container mx-auto">
-				{/* Case Studies Section */}
-
 				<section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 					{caseStudies.map((caseStudy, index) => (
 						<div
