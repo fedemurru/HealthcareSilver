@@ -31,6 +31,10 @@ export default function BookAppointment() {
 	useEffect(() => {
 		if (formData.date) {
 			const fetchBookedTimes = async () => {
+				if (!process.env.NEXT_PUBLIC_API_URL) {
+					return null;
+				}
+
 				try {
 					const res = await fetch(
 						`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/times?date=${formData.date}`

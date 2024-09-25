@@ -7,6 +7,9 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 async function getData() {
 	try {
+		if (!apiUrl) {
+			return null;
+		}
 		const response = await fetch(`${apiUrl}/api/case`, {
 			cache: "no-cache",
 		});

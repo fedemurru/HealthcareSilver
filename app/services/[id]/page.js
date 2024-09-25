@@ -6,6 +6,9 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 async function getProjectData(id) {
 	try {
+		if (!apiUrl) {
+			return null;
+		}
 		const response = await fetch(`${apiUrl}/api/case/${id}`, {
 			cache: "no-store",
 		});

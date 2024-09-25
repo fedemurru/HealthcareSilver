@@ -4,6 +4,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || ""; // Fallback to relative p
 // Fetch all appointments
 export const fetchAppointments = async () => {
 	try {
+		if (!API_URL) {
+			return null;
+		}
 		const response = await fetch(`${API_URL}/api/appointments/book`);
 		if (!response.ok) {
 			throw new Error("Failed to fetch appointments");
@@ -18,6 +21,9 @@ export const fetchAppointments = async () => {
 // Cancel an appointment by ID
 export const cancelAppointment = async (appointmentId) => {
 	try {
+		if (!API_URL) {
+			return null;
+		}
 		const response = await fetch(
 			`${API_URL}/api/appointments/book/${appointmentId}`,
 			{
