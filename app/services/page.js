@@ -3,9 +3,13 @@ import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || null;
 
 async function getData() {
+	if (!apiUrl) {
+		console.log("API URL is not set. Skipping fetch.");
+		return [];
+	}
 	try {
 		const response = await fetch(`${apiUrl}/api/case`, {
 			cache: "no-cache",
