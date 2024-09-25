@@ -23,6 +23,9 @@ const AdminDashboard = () => {
 	// Fetch appointments when the component mounts
 	useEffect(() => {
 		const loadAppointments = async () => {
+			if (!API_URL) {
+				return null;
+			}
 			const data = await fetchAppointments();
 			setAppointments(data);
 		};
@@ -31,6 +34,9 @@ const AdminDashboard = () => {
 
 	// Handle canceling the appointment
 	const handleCancelConfirm = async () => {
+		if (!API_URL) {
+			return null;
+		}
 		if (!selectedAppointment) return;
 		const success = await cancelAppointment(selectedAppointment.id);
 
@@ -48,7 +54,9 @@ const AdminDashboard = () => {
 	// Handle rescheduling the appointment
 	const handleRescheduleConfirm = async (newDate, newTime) => {
 		if (!selectedAppointment) return;
-
+		if (!API_URL) {
+			return null;
+		}
 		const updatedAppointment = await rescheduleAppointment(
 			selectedAppointment.id,
 			newDate,
