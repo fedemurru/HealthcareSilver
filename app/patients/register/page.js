@@ -21,10 +21,6 @@ export default function PatientRegister() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		if (!process.env.NEXT_PUBLIC_API_URL) {
-			return null;
-		}
-
 		const res = await fetch(
 			`${process.env.NEXT_PUBLIC_API_URL}/api/patients/register`,
 			{
