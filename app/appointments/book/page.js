@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || null;
+
 // Define all possible time slots
 const times = [
 	"09:00",
@@ -31,13 +33,13 @@ export default function BookAppointment() {
 	useEffect(() => {
 		if (formData.date) {
 			const fetchBookedTimes = async () => {
-				if (!process.env.NEXT_PUBLIC_API_URL) {
+				if (!apiUrl) {
 					return null;
 				}
 
 				try {
 					const res = await fetch(
-						`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/times?date=${formData.date}`
+						`${apiUrl}/api/appointments/times?date=${formData.date}`
 					);
 					const data = await res.json();
 
@@ -72,15 +74,14 @@ export default function BookAppointment() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError(null);
-
-		const res = await fetch(
-			`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/book`,
-			{
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ patientId, ...formData }),
-			}
-		);
+		if (!apiUrl) {
+			return null;
+		}
+		const res = await fetch(`${apiUrl}/api/appointments/book`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ patientId, ...formData }),
+		});
 
 		if (res.ok) {
 			router.push("/appointments/book/success");
