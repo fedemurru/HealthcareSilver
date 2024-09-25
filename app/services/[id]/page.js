@@ -1,10 +1,8 @@
 // import { BASE_API_URL } from "@/app/constants";
 import Image from "next/image";
 import Link from "next/link";
-import { BASE_API_URL } from "../../constants";
 
-// Fetch project data from the API
-const apiUrl = BASE_API_URL;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 async function getProjectData(id) {
 	try {

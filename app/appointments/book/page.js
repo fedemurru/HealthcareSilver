@@ -3,20 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Select from "react-select";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
-// England bank holidays for 2024 (add more as needed)
-const bankHolidays = [
-	new Date("2024-01-01"), // New Year's Day
-	new Date("2024-03-29"), // Good Friday
-	new Date("2024-04-01"), // Easter Monday
-	new Date("2024-05-06"), // Early May Bank Holiday
-	new Date("2024-05-27"), // Spring Bank Holiday
-	new Date("2024-08-26"), // Summer Bank Holiday
-	new Date("2024-12-25"), // Christmas Day
-	new Date("2024-12-26"), // Boxing Day
-];
 
 // Define all possible time slots
 const times = [
@@ -41,13 +28,12 @@ export default function BookAppointment() {
 	const [bookedTimes, setBookedTimes] = useState([]);
 	const [error, setError] = useState(null);
 
-	// Fetch booked time slots when the date changes
 	useEffect(() => {
 		if (formData.date) {
 			const fetchBookedTimes = async () => {
 				try {
 					const res = await fetch(
-						`/api/appointments/times?date=${formData.date}`
+						`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/times?date=${formData.date}`
 					);
 					const data = await res.json();
 
@@ -66,14 +52,13 @@ export default function BookAppointment() {
 		}
 	}, [formData.date]);
 
-	// Filter available times by removing booked times
 	useEffect(() => {
 		const filteredTimes = times.filter((time) => !bookedTimes.includes(time));
 		setAvailableTimes(filteredTimes); // Update available times after filtering
 	}, [bookedTimes]);
 
-	const handleDateChange = (date) => {
-		setFormData({ ...formData, date });
+	const handleDateChange = (e) => {
+		setFormData({ ...formData, date: e.target.value });
 	};
 
 	const handleTimeChange = (selectedOption) => {
@@ -82,13 +67,16 @@ export default function BookAppointment() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setError(null); // Reset error state
+		setError(null);
 
-		const res = await fetch("/api/appointments/book", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ patientId, ...formData }),
-		});
+		const res = await fetch(
+			`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/book`,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ patientId, ...formData }),
+			}
+		);
 
 		if (res.ok) {
 			router.push("/appointments/book/success");
@@ -98,7 +86,6 @@ export default function BookAppointment() {
 		}
 	};
 
-	// Options for react-select dropdown
 	const timeOptions = availableTimes.map((time) => ({
 		value: time,
 		label: time,
@@ -114,11 +101,9 @@ export default function BookAppointment() {
 					{patientId ? `Welcome! Let's book your appointment.` : "Loading..."}
 				</h1>
 
-				{/* Appointment Form Section */}
 				<h2 className="text-xl font-bold mb-4">Book an Appointment</h2>
-				{error && <p className="text-red-500 mb-4">{error}</p>}
+				{error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-				{/* Date Field */}
 				<div className="mb-4">
 					<label
 						className="block text-gray-600 text-sm font-bold mb-2"
@@ -130,7 +115,7 @@ export default function BookAppointment() {
 						type="date"
 						name="date"
 						value={formData.date}
-						onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+						onChange={handleDateChange}
 						className="w-full p-4 text-lg border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						required
 					/>
@@ -149,17 +134,17 @@ export default function BookAppointment() {
 							control: (provided, state) => ({
 								...provided,
 								backgroundColor: "#ffffff",
-								borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // Change border on focus (Tailwind blue-500)
+								borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
 								padding: "0.6rem 1rem",
 								fontSize: "1.125rem",
 								color: "#374151",
 								borderRadius: "0.375rem",
 								boxShadow: state.isFocused
-									? "0 0 0 2px rgba(59, 130, 246, 0.5)" // Focus ring equivalent to `focus:ring-blue-500`
-									: "none", // No shadow when not focused
-								outline: "none", // Remove default outline
+									? "0 0 0 2px rgba(59, 130, 246, 0.5)"
+									: "none",
+								outline: "none",
 								"&:hover": {
-									borderColor: "#4b5563", // Darker gray on hover
+									borderColor: "#4b5563",
 								},
 							}),
 							singleValue: (provided) => ({
@@ -180,7 +165,7 @@ export default function BookAppointment() {
 				<button
 					type="submit"
 					className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
-					disabled={!formData.time} // Disable if no time is selected
+					disabled={!formData.time}
 				>
 					Book Appointment
 				</button>

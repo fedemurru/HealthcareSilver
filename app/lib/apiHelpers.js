@@ -1,7 +1,10 @@
 // utils/apiHelpers.js
+const API_URL = process.env.NEXT_PUBLIC_API_URL || ""; // Fallback to relative path if API URL isn't set
+
+// Fetch all appointments
 export const fetchAppointments = async () => {
 	try {
-		const response = await fetch("/api/appointments/book");
+		const response = await fetch(`${API_URL}/api/appointments/book`);
 		if (!response.ok) {
 			throw new Error("Failed to fetch appointments");
 		}
@@ -12,11 +15,15 @@ export const fetchAppointments = async () => {
 	}
 };
 
+// Cancel an appointment by ID
 export const cancelAppointment = async (appointmentId) => {
 	try {
-		const response = await fetch(`/api/appointments/book/${appointmentId}`, {
-			method: "DELETE",
-		});
+		const response = await fetch(
+			`${API_URL}/api/appointments/book/${appointmentId}`,
+			{
+				method: "DELETE",
+			}
+		);
 		if (!response.ok) {
 			throw new Error("Failed to cancel appointment");
 		}
@@ -27,19 +34,23 @@ export const cancelAppointment = async (appointmentId) => {
 	}
 };
 
+// Reschedule an appointment with new date and time
 export const rescheduleAppointment = async (
 	appointmentId,
 	newDate,
 	newTime
 ) => {
 	try {
-		const response = await fetch(`/api/appointments/book/${appointmentId}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ newDate, newTime }),
-		});
+		const response = await fetch(
+			`${API_URL}/api/appointments/book/${appointmentId}`,
+			{
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ newDate, newTime }),
+			}
+		);
 
 		if (!response.ok) {
 			throw new Error("Failed to reschedule appointment");
