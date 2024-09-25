@@ -1,8 +1,8 @@
+// BookAppointment component
 "use client";
 
-import { Suspense } from "react";
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -22,15 +22,15 @@ const times = [
 ];
 
 export default function BookAppointment() {
-	const searchParams = useSearchParams();
 	const router = useRouter();
-	const patientId = searchParams.get("patientId");
+	const { patientId } = router.query; // Replaces useSearchParams
 
 	const [formData, setFormData] = useState({ date: "", time: "" });
 	const [availableTimes, setAvailableTimes] = useState([]);
 	const [bookedTimes, setBookedTimes] = useState([]);
 	const [error, setError] = useState(null);
 
+	// Fetch booked time slots when the date changes
 	useEffect(() => {
 		if (formData.date) {
 			const fetchBookedTimes = async () => {
@@ -59,6 +59,7 @@ export default function BookAppointment() {
 		}
 	}, [formData.date]);
 
+	// Filter available times by removing booked times
 	useEffect(() => {
 		const filteredTimes = times.filter((time) => !bookedTimes.includes(time));
 		setAvailableTimes(filteredTimes); // Update available times after filtering
@@ -92,6 +93,7 @@ export default function BookAppointment() {
 		}
 	};
 
+	// Options for react-select dropdown
 	const timeOptions = availableTimes.map((time) => ({
 		value: time,
 		label: time,
@@ -139,18 +141,18 @@ export default function BookAppointment() {
 						styles={{
 							control: (provided, state) => ({
 								...provided,
-								backgroundColor: "#ffffff",
-								borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
-								padding: "0.6rem 1rem",
-								fontSize: "1.125rem",
-								color: "#374151",
-								borderRadius: "0.375rem",
+								backgroundColor: "#ffffff", // White background
+								borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // Tailwind gray border
+								padding: "0.6rem 1rem", // Padding similar to input
+								fontSize: "1.125rem", // Tailwind text-lg
+								color: "#374151", // Tailwind gray text
+								borderRadius: "0.375rem", // Rounded corners
 								boxShadow: state.isFocused
-									? "0 0 0 2px rgba(59, 130, 246, 0.5)"
+									? "0 0 0 2px rgba(59, 130, 246, 0.5)" // Blue focus ring
 									: "none",
-								outline: "none",
+								outline: "none", // Remove default outline
 								"&:hover": {
-									borderColor: "#4b5563",
+									borderColor: "#4b5563", // Darker gray on hover
 								},
 							}),
 							singleValue: (provided) => ({
@@ -159,7 +161,7 @@ export default function BookAppointment() {
 							}),
 							menu: (provided) => ({
 								...provided,
-								borderRadius: "0.375rem",
+								borderRadius: "0.375rem", // Rounded corners
 							}),
 						}}
 						placeholder="Select a time"
@@ -177,13 +179,5 @@ export default function BookAppointment() {
 				</button>
 			</form>
 		</div>
-	);
-}
-
-export function SuspenseWrapper() {
-	return (
-		<Suspense fallback={<div>Loading...</div>}>
-			<BookAppointment />
-		</Suspense>
 	);
 }
