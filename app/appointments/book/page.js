@@ -1,14 +1,13 @@
-// BookAppointment component
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation"; // Use useSearchParams here correctly
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 
+// Check if the environment variable is available, else set it to null
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || null;
 
-// Define all possible time slots
 const times = [
 	"09:00",
 	"10:00",
@@ -22,22 +21,18 @@ const times = [
 ];
 
 export default function BookAppointment() {
-	const router = useRouter();
-	const { patientId } = router.query; // Replaces useSearchParams
+	const searchParams = useSearchParams();
+	const patientId = searchParams.get("patientId"); // Fetch patientId from the query string
 
 	const [formData, setFormData] = useState({ date: "", time: "" });
 	const [availableTimes, setAvailableTimes] = useState([]);
 	const [bookedTimes, setBookedTimes] = useState([]);
 	const [error, setError] = useState(null);
 
-	// Fetch booked time slots when the date changes
+	// Fetch booked time slots when the date changes, only if apiUrl is set
 	useEffect(() => {
-		if (formData.date) {
+		if (formData.date && apiUrl) {
 			const fetchBookedTimes = async () => {
-				if (!apiUrl) {
-					return null;
-				}
-
 				try {
 					const res = await fetch(
 						`${apiUrl}/api/appointments/times?date=${formData.date}`
@@ -56,6 +51,8 @@ export default function BookAppointment() {
 			};
 
 			fetchBookedTimes();
+		} else if (!apiUrl) {
+			console.warn("API URL is missing, skipping fetch.");
 		}
 	}, [formData.date]);
 
@@ -76,9 +73,14 @@ export default function BookAppointment() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError(null);
+
+		// Prevent form submission if the API URL is missing
 		if (!apiUrl) {
-			return null;
+			setError("API URL is missing, unable to book appointment.");
+			console.warn("API URL is missing, form submission prevented.");
+			return;
 		}
+
 		const res = await fetch(`${apiUrl}/api/appointments/book`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -86,7 +88,8 @@ export default function BookAppointment() {
 		});
 
 		if (res.ok) {
-			router.push("/appointments/book/success");
+			// Assuming you want to redirect to a success page after booking
+			window.location.href = "/appointments/book/success";
 		} else {
 			const data = await res.json();
 			setError(data.error || "Failed to book appointment.");
