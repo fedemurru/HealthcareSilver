@@ -7,9 +7,6 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 async function getData() {
 	try {
-		if (!apiUrl) {
-			return null;
-		}
 		const response = await fetch(`${apiUrl}/api/case`, {
 			cache: "no-cache",
 		});
@@ -23,10 +20,11 @@ async function getData() {
 }
 
 async function WorkPage() {
-	const caseStudies = await getData();
 	if (!apiUrl) {
 		return null;
 	}
+	const caseStudies = await getData();
+
 	return (
 		<div className="bg-gray-50 mt-10 p-6">
 			<header className="bg-primary text-white py-6 mb-12">
