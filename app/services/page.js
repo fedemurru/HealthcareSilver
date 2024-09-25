@@ -33,16 +33,6 @@ async function getData() {
 }
 
 async function WorkPage() {
-	if (!apiUrl) {
-		if (process.env.NODE_ENV === "production") {
-			console.error("API URL is not available in production.");
-			// Optionally, disable features that require API in production
-			return <div>API is currently not available. Please try again later.</div>;
-		} else {
-			console.error("API URL is not set in development.");
-			return null;
-		}
-	}
 	const caseStudies = await getData();
 
 	return (
