@@ -3,11 +3,21 @@ import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || null;
+const apiUrl =
+	process.env.NODE_ENV === "development"
+		? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+		: null; // In production, return null if no API is set
 
 async function getData() {
 	if (!apiUrl) {
-		return [];
+		if (process.env.NODE_ENV === "production") {
+			console.error("API URL is not available in production.");
+			// Optionally, disable features that require API in production
+			return <div>API is currently not available. Please try again later.</div>;
+		} else {
+			console.error("API URL is not set in development.");
+			return null;
+		}
 	}
 	try {
 		const response = await fetch(`${apiUrl}/api/case`, {
@@ -24,7 +34,14 @@ async function getData() {
 
 async function WorkPage() {
 	if (!apiUrl) {
-		return [];
+		if (process.env.NODE_ENV === "production") {
+			console.error("API URL is not available in production.");
+			// Optionally, disable features that require API in production
+			return <div>API is currently not available. Please try again later.</div>;
+		} else {
+			console.error("API URL is not set in development.");
+			return null;
+		}
 	}
 	const caseStudies = await getData();
 
