@@ -7,7 +7,6 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || null;
 
 async function getData() {
 	if (!apiUrl) {
-		console.log("API URL is not set. Skipping fetch.");
 		return [];
 	}
 	try {
@@ -25,7 +24,7 @@ async function getData() {
 
 async function WorkPage() {
 	if (!apiUrl) {
-		return null;
+		return [];
 	}
 	const caseStudies = await getData();
 
