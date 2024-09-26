@@ -1,4 +1,23 @@
 // components/AppointmentsTable.js
+import { supabase } from "../lib/supabaseClient";
+
+const { data: appointments, error } = await supabase.from("Appointment")
+	.select(`
+    id,
+    date,
+    time,
+    Patient (
+      name,
+      email
+    )
+  `);
+
+if (error) {
+	console.error("Error fetching appointments:", error);
+} else {
+	console.log("Appointments with patient details:", appointments);
+}
+
 const AppointmentsTable = ({
 	appointments,
 	openRescheduleModal,
@@ -19,10 +38,10 @@ const AppointmentsTable = ({
 				{appointments.map((appointment) => (
 					<tr key={appointment.id}>
 						<td className="border px-4 py-2">
-							{appointment.patient?.name || "Unknown"}
+							{appointment.Patient?.name || "Unknown"}
 						</td>
 						<td className="border px-4 py-2">
-							{appointment.patient?.email || "No Email"}
+							{appointment.Patient?.email || "No Email"}
 						</td>
 						<td className="border px-4 py-2">
 							{new Date(appointment.date).toLocaleDateString()}

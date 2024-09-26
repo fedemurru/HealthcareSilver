@@ -1,5 +1,24 @@
 "use client";
 
+import { supabase } from "../../lib/supabaseClient";
+
+const { data: appointments, error } = await supabase.from("Appointment")
+	.select(`
+    id,
+    date,
+    time,
+    Patient (
+      name,
+      email
+    )
+  `);
+
+if (error) {
+	console.error("Error fetching appointments:", error);
+} else {
+	console.log("Appointments with patient details:", appointments);
+}
+
 import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import RescheduleModal from "../../components/RescheduleModal";
@@ -15,16 +34,25 @@ import {
 } from "../../lib/apiHelpers";
 
 const AdminDashboard = () => {
+	// State variables
 	const [appointments, setAppointments] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
 	const [selectedAppointment, setSelectedAppointment] = useState(null);
+	const [loading, setLoading] = useState(true); // Loading state
 
 	// Fetch appointments when the component mounts
 	useEffect(() => {
 		const loadAppointments = async () => {
-			const data = await fetchAppointments();
-			setAppointments(data);
+			try {
+				const data = await fetchAppointments();
+				setAppointments(data);
+			} catch (error) {
+				console.error("Error fetching appointments:", error);
+				toast.error("Failed to load appointments");
+			} finally {
+				setLoading(false); // Hide loading indicator when done
+			}
 		};
 		loadAppointments();
 	}, []);
@@ -70,6 +98,7 @@ const AdminDashboard = () => {
 		}
 	};
 
+	// Modal open/close functions
 	const openModal = (appointment) => {
 		setSelectedAppointment(appointment);
 		setIsModalOpen(true);
@@ -89,6 +118,11 @@ const AdminDashboard = () => {
 		setSelectedAppointment(null);
 		setIsRescheduleModalOpen(false);
 	};
+
+	// Show loading indicator while data is being fetched
+	if (loading) {
+		return <div>Loading appointments...</div>;
+	}
 
 	return (
 		<div className="min-h-screen p-6 bg-gray-100">
