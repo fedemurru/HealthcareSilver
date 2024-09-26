@@ -35,75 +35,44 @@ export async function DELETE(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
-	const { id } = params; // Estrai l'ID dell'appuntamento dai parametri URL
+	const { id } = params;
 
 	try {
-		// Estrai la nuova data e l'orario dalla richiesta
 		const { newDate, newTime } = await req.json();
-		console.log("Rescheduling with:", newDate, newTime); // Logga la nuova data e il nuovo orario
-		console.log("Appointment ID (as integer):", parseInt(id, 10)); // Logga l'ID dell'appuntamento
+		console.log("Rescheduling with:", newDate, newTime);
 
-		// Verifica che i dati siano correttamente formattati prima dell'aggiornamento
-		console.log("New date object:", new Date(newDate));
+		const newDateObj = new Date(newDate); // Assicurati che newDate sia un oggetto Date
+		console.log("Dati inviati a Supabase:", { newDateObj, newTime });
 
-		// Esegui la query per verificare se l'ID esiste
-		const appointmentId = Number(id); // Converte l'ID in un numero
+		const appointmentId = Number(id); // Verifica che l'ID sia un numero
 
-		const { data: existingAppointment, error: fetchError } = await supabase
-			.from("Appointment")
-			.select("*")
-			.eq("id", appointmentId)
-			.single();
-
-		// Se non esiste un appuntamento con quell'ID, restituisci un errore 404
-		if (!existingAppointment) {
-			console.log("No appointment found with this ID");
-			return NextResponse.json(
-				{ error: "No appointment found before update" },
-				{ status: 404 }
-			);
-		}
-
-		// Esegui la query di aggiornamento
 		const { data, error } = await supabase
-			.from('"Appointment"')
+			.from("Appointment")
 			.update({
-				time: newTime, // Aggiorna solo il tempo
+				date: newDateObj, // Usa un oggetto Date per la colonna 'date'
+				time: newTime,
 			})
-			.eq('"id"', appointmentId); // Colonna id racchiusa tra virgolette doppie
+			.eq("id", appointmentId);
 
-		// Logga il tipo di dato dell'ID e i dati inviati
-		console.log("Tipo di id passato a Supabase:", typeof appointmentId); // Deve risultare 'number'
-		console.log("Invio aggiornamento a Supabase:", {
-			date: new Date(newDate),
-			time: newTime,
-		});
-
-		// Se c'è un errore, logga i dettagli
 		if (error) {
-			console.error("Supabase Error:", error); // Verifica se ci sono errori specifici
+			console.error("Errore Supabase:", error);
 			return NextResponse.json(
 				{ error: "Error updating appointment", details: error },
 				{ status: 500 }
 			);
 		}
 
-		// Se non ci sono dati aggiornati, restituisci un errore
 		if (!data || data.length === 0) {
-			console.log("No appointment found or updated");
+			console.log("Nessun appuntamento trovato o aggiornato");
 			return NextResponse.json(
 				{ error: "No appointment found or updated" },
 				{ status: 404 }
 			);
 		}
 
-		// Logga i dati aggiornati restituiti da Supabase
-		console.log("Updated data:", data);
-
-		// Restituisci l'appuntamento aggiornato
 		return NextResponse.json({ appointment: data[0] }, { status: 200 });
 	} catch (error) {
-		console.error("Error updating appointment:", error);
+		console.error("Errore nell'aggiornamento dell'appuntamento:", error);
 		return NextResponse.json(
 			{ error: "Error updating appointment" },
 			{ status: 500 }

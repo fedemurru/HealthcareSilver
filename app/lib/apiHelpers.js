@@ -53,6 +53,7 @@ export const rescheduleAppointment = async (
 		console.log("Dati inviati:", { newDate, newTime });
 
 		const newDateObj = new Date(newDate); // Converte la stringa in oggetto Date
+		console.log("Tipo di newDateObj:", typeof newDateObj, newDateObj);
 
 		const response = await fetch(
 			`${API_URL}/api/appointments/book/${appointmentId}`,
@@ -66,7 +67,12 @@ export const rescheduleAppointment = async (
 		);
 
 		if (!response.ok) {
-			const errorData = await response.json();
+			let errorData;
+			try {
+				errorData = await response.json(); // Prova a ottenere il body JSON
+			} catch (jsonError) {
+				errorData = "No JSON body in the response"; // Se non c'è JSON, aggiungi un messaggio di fallback
+			}
 			console.error(
 				"Failed to reschedule appointment:",
 				response.status,
