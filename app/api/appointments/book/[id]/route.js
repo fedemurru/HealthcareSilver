@@ -41,18 +41,23 @@ export async function PUT(req, { params }) {
 		const { newDate, newTime } = await req.json();
 		console.log("Rescheduling with:", newDate, newTime);
 
-		const newDateObj = new Date(newDate); // Assicurati che newDate sia un oggetto Date
+		const newDateObj = new Date(newDate);
 		console.log("Dati inviati a Supabase:", { newDateObj, newTime });
 
-		const appointmentId = Number(id); // Verifica che l'ID sia un numero
+		const appointmentId = Number(id); // Assicurati che l'ID sia un numero intero
 
+		// Aggiorna l'appuntamento in Supabase e richiedi di restituire i dati aggiornati
 		const { data, error } = await supabase
 			.from("Appointment")
 			.update({
-				date: newDateObj, // Usa un oggetto Date per la colonna 'date'
+				date: newDateObj,
 				time: newTime,
 			})
-			.eq("id", appointmentId);
+			.eq("id", appointmentId)
+			.select("*"); // Assicurati di selezionare i dati aggiornati
+
+		// Logga i dati restituiti da Supabase
+		console.log("Dati restituiti da Supabase:", data);
 
 		if (error) {
 			console.error("Errore Supabase:", error);
@@ -70,11 +75,12 @@ export async function PUT(req, { params }) {
 			);
 		}
 
+		// Se l'aggiornamento è avvenuto con successo
 		return NextResponse.json({ appointment: data[0] }, { status: 200 });
 	} catch (error) {
-		console.error("Errore nell'aggiornamento dell'appuntamento:", error);
+		console.error("Errore durante l'aggiornamento dell'appuntamento:", error);
 		return NextResponse.json(
-			{ error: "Error updating appointment" },
+			{ error: "Error updating appointment", details: error },
 			{ status: 500 }
 		);
 	}

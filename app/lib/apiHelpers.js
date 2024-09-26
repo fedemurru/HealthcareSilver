@@ -52,7 +52,7 @@ export const rescheduleAppointment = async (
 		);
 		console.log("Dati inviati:", { newDate, newTime });
 
-		const newDateObj = new Date(newDate); // Converte la stringa in oggetto Date
+		const newDateObj = new Date(newDate);
 		console.log("Tipo di newDateObj:", typeof newDateObj, newDateObj);
 
 		const response = await fetch(
@@ -69,9 +69,9 @@ export const rescheduleAppointment = async (
 		if (!response.ok) {
 			let errorData;
 			try {
-				errorData = await response.json(); // Prova a ottenere il body JSON
+				errorData = await response.json();
 			} catch (jsonError) {
-				errorData = "No JSON body in the response"; // Se non c'è JSON, aggiungi un messaggio di fallback
+				errorData = "No JSON body in the response";
 			}
 			console.error(
 				"Failed to reschedule appointment:",
@@ -81,12 +81,21 @@ export const rescheduleAppointment = async (
 			throw new Error("Failed to reschedule appointment");
 		}
 
-		const data = await response.json(); // Ottieni i dati della risposta
-		console.log("API response data:", data); // Logga i dati per verificare il risultato
+		// Logga la risposta completa
+		const data = await response.json();
+		console.log("API response data completa:", data);
 
-		return data.appointment ? data.appointment : data; // Verifica i campi della risposta
+		// Verifica se esiste il campo "appointment"
+		if (data && data.appointment) {
+			return data.appointment;
+		} else {
+			console.warn(
+				"Il campo 'appointment' non esiste nella risposta. Restituisco 'data'."
+			);
+			return data;
+		}
 	} catch (error) {
 		console.error("Error rescheduling appointment:", error);
-		return null; // Ritorna null in caso di errore
+		return null;
 	}
 };
