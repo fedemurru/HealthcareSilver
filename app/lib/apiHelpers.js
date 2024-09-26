@@ -47,6 +47,13 @@ export const rescheduleAppointment = async (
 	newTime
 ) => {
 	try {
+		console.log(
+			`Request to: ${API_URL}/api/appointments/book/${appointmentId}`
+		);
+		console.log("Dati inviati:", { newDate, newTime });
+
+		const newDateObj = new Date(newDate); // Converte la stringa in oggetto Date
+
 		const response = await fetch(
 			`${API_URL}/api/appointments/book/${appointmentId}`,
 			{
@@ -54,18 +61,24 @@ export const rescheduleAppointment = async (
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ newDate, newTime }),
+				body: JSON.stringify({ newDate: newDateObj, newTime }),
 			}
 		);
 
 		if (!response.ok) {
+			const errorData = await response.json();
+			console.error(
+				"Failed to reschedule appointment:",
+				response.status,
+				errorData
+			);
 			throw new Error("Failed to reschedule appointment");
 		}
 
 		const data = await response.json(); // Ottieni i dati della risposta
-
 		console.log("API response data:", data); // Logga i dati per verificare il risultato
-		return data.appointment; // Verifica che 'appointment' sia il campo corretto
+
+		return data.appointment ? data.appointment : data; // Verifica i campi della risposta
 	} catch (error) {
 		console.error("Error rescheduling appointment:", error);
 		return null; // Ritorna null in caso di errore
