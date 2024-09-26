@@ -33,42 +33,62 @@ export async function DELETE(req, { params }) {
 		);
 	}
 }
+
 export async function PUT(req, { params }) {
 	const { id } = params; // Estrai l'ID dell'appuntamento dai parametri URL
 
 	try {
-		const { newDate, newTime } = await req.json(); // Estrai la nuova data e l'orario dalla richiesta
+		// Estrai la nuova data e l'orario dalla richiesta
+		const { newDate, newTime } = await req.json();
 		console.log("Rescheduling with:", newDate, newTime); // Logga la nuova data e il nuovo orario
 		console.log("Appointment ID (as integer):", parseInt(id, 10)); // Logga l'ID dell'appuntamento
 
 		// Verifica che i dati siano correttamente formattati prima dell'aggiornamento
 		console.log("New date object:", new Date(newDate));
 
+		// Esegui la query per verificare se l'ID esiste
+		const appointmentId = Number(id); // Converte l'ID in un numero
+
+		const { data: existingAppointment, error: fetchError } = await supabase
+			.from("Appointment")
+			.select("*")
+			.eq("id", appointmentId)
+			.single();
+
+		// Se non esiste un appuntamento con quell'ID, restituisci un errore 404
+		if (!existingAppointment) {
+			console.log("No appointment found with this ID");
+			return NextResponse.json(
+				{ error: "No appointment found before update" },
+				{ status: 404 }
+			);
+		}
+
 		// Esegui la query di aggiornamento
 		const { data, error } = await supabase
-			.from("Appointment")
+			.from('"Appointment"')
 			.update({
-				date: new Date(newDate), // Assicurati che la data sia valida
-				time: newTime, // Aggiorna l'orario
+				time: newTime, // Aggiorna solo il tempo
 			})
-			.eq("id", parseInt(id, 10)); // Filtra per ID
+			.eq('"id"', appointmentId); // Colonna id racchiusa tra virgolette doppie
 
-		// Logga l'errore di Supabase se c'è
+		// Logga il tipo di dato dell'ID e i dati inviati
+		console.log("Tipo di id passato a Supabase:", typeof appointmentId); // Deve risultare 'number'
+		console.log("Invio aggiornamento a Supabase:", {
+			date: new Date(newDate),
+			time: newTime,
+		});
+
+		// Se c'è un errore, logga i dettagli
 		if (error) {
 			console.error("Supabase Error:", error); // Verifica se ci sono errori specifici
 			return NextResponse.json(
-				{ error: "Error updating appointment" },
+				{ error: "Error updating appointment", details: error },
 				{ status: 500 }
 			);
 		}
 
-		// Logga i dati aggiornati restituiti da Supabase
-		console.log("Updated data:", data);
-
-		if (error) {
-			console.error("Supabase Error:", error);
-		}
-
+		// Se non ci sono dati aggiornati, restituisci un errore
 		if (!data || data.length === 0) {
 			console.log("No appointment found or updated");
 			return NextResponse.json(
@@ -76,6 +96,9 @@ export async function PUT(req, { params }) {
 				{ status: 404 }
 			);
 		}
+
+		// Logga i dati aggiornati restituiti da Supabase
+		console.log("Updated data:", data);
 
 		// Restituisci l'appuntamento aggiornato
 		return NextResponse.json({ appointment: data[0] }, { status: 200 });
