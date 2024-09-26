@@ -1,24 +1,5 @@
 "use client";
 
-import { supabase } from "../../lib/supabaseClient";
-
-const { data: appointments, error } = await supabase.from("Appointment")
-	.select(`
-    id,
-    date,
-    time,
-    Patient (
-      name,
-      email
-    )
-  `);
-
-if (error) {
-	console.error("Error fetching appointments:", error);
-} else {
-	console.log("Appointments with patient details:", appointments);
-}
-
 import { useState, useEffect } from "react";
 import Modal from "../../components/Modal";
 import RescheduleModal from "../../components/RescheduleModal";
@@ -77,24 +58,25 @@ const AdminDashboard = () => {
 	const handleRescheduleConfirm = async (newDate, newTime) => {
 		if (!selectedAppointment) return;
 
-		const updatedAppointment = await rescheduleAppointment(
-			selectedAppointment.id,
-			newDate,
-			newTime
-		);
-
-		if (updatedAppointment) {
-			setAppointments((prev) =>
-				prev.map((appointment) =>
-					appointment.id === updatedAppointment.id
-						? updatedAppointment
-						: appointment
-				)
+		try {
+			const updatedAppointment = await rescheduleAppointment(
+				selectedAppointment.id,
+				newDate,
+				newTime
 			);
-			toast.success("Appointment rescheduled successfully");
-			setIsRescheduleModalOpen(false);
-		} else {
-			toast.error("Failed to reschedule appointment");
+
+			// Log per verificare cosa viene restituito
+			console.log("Updated appointment:", updatedAppointment);
+
+			// Verifica se l'appuntamento è stato aggiornato correttamente
+			if (updatedAppointment) {
+				toast.success("Appointment rescheduled successfully");
+			} else {
+				toast.error("Failed to reschedule appointment");
+			}
+		} catch (error) {
+			console.error("Error during reschedule:", error);
+			toast.error("An unexpected error occurred");
 		}
 	};
 

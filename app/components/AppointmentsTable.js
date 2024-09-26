@@ -1,23 +1,6 @@
 // components/AppointmentsTable.js
 import { supabase } from "../lib/supabaseClient";
 
-const { data: appointments, error } = await supabase.from("Appointment")
-	.select(`
-    id,
-    date,
-    time,
-    Patient (
-      name,
-      email
-    )
-  `);
-
-if (error) {
-	console.error("Error fetching appointments:", error);
-} else {
-	console.log("Appointments with patient details:", appointments);
-}
-
 const AppointmentsTable = ({
 	appointments,
 	openRescheduleModal,

@@ -33,33 +33,52 @@ export async function DELETE(req, { params }) {
 		);
 	}
 }
-
-// PUT: Reschedule appointment
 export async function PUT(req, { params }) {
 	const { id } = params; // Estrai l'ID dell'appuntamento dai parametri URL
 
 	try {
-		const { newDate, newTime } = await req.json(); // Ottieni la nuova data e il nuovo orario dal corpo della richiesta
+		const { newDate, newTime } = await req.json(); // Estrai la nuova data e l'orario dalla richiesta
+		console.log("Rescheduling with:", newDate, newTime); // Logga la nuova data e il nuovo orario
+		console.log("Appointment ID (as integer):", parseInt(id, 10)); // Logga l'ID dell'appuntamento
 
-		// Aggiorna l'appuntamento nel database utilizzando Supabase
+		// Verifica che i dati siano correttamente formattati prima dell'aggiornamento
+		console.log("New date object:", new Date(newDate));
+
+		// Esegui la query di aggiornamento
 		const { data, error } = await supabase
 			.from("Appointment")
 			.update({
-				date: new Date(newDate), // Aggiorna la data come oggetto Date
+				date: new Date(newDate), // Assicurati che la data sia valida
 				time: newTime, // Aggiorna l'orario
 			})
 			.eq("id", parseInt(id, 10)); // Filtra per ID
 
+		// Logga l'errore di Supabase se c'è
 		if (error) {
-			console.error("Error updating appointment:", error);
+			console.error("Supabase Error:", error); // Verifica se ci sono errori specifici
 			return NextResponse.json(
 				{ error: "Error updating appointment" },
 				{ status: 500 }
 			);
 		}
 
+		// Logga i dati aggiornati restituiti da Supabase
+		console.log("Updated data:", data);
+
+		if (error) {
+			console.error("Supabase Error:", error);
+		}
+
+		if (!data || data.length === 0) {
+			console.log("No appointment found or updated");
+			return NextResponse.json(
+				{ error: "No appointment found or updated" },
+				{ status: 404 }
+			);
+		}
+
 		// Restituisci l'appuntamento aggiornato
-		return NextResponse.json(data, { status: 200 });
+		return NextResponse.json({ appointment: data[0] }, { status: 200 });
 	} catch (error) {
 		console.error("Error updating appointment:", error);
 		return NextResponse.json(

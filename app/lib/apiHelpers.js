@@ -62,9 +62,12 @@ export const rescheduleAppointment = async (
 			throw new Error("Failed to reschedule appointment");
 		}
 
-		return await response.json();
+		const data = await response.json(); // Ottieni i dati della risposta
+
+		console.log("API response data:", data); // Logga i dati per verificare il risultato
+		return data.appointment; // Verifica che 'appointment' sia il campo corretto
 	} catch (error) {
 		console.error("Error rescheduling appointment:", error);
-		return null;
+		return null; // Ritorna null in caso di errore
 	}
 };
