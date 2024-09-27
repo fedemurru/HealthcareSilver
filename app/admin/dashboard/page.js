@@ -55,14 +55,15 @@ const AdminDashboard = () => {
 	};
 
 	// Handle rescheduling the appointment
-	const handleRescheduleConfirm = async (newDate, newTime) => {
+	const handleRescheduleConfirm = async (newDate, newTime, mutate) => {
 		if (!selectedAppointment) return;
 
 		try {
 			const updatedAppointment = await rescheduleAppointment(
 				selectedAppointment.id,
 				newDate,
-				newTime
+				newTime,
+				mutate
 			);
 
 			// Log per verificare cosa viene restituito

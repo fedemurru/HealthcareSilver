@@ -7,7 +7,9 @@ export const fetchAppointments = async () => {
 		if (!API_URL) {
 			return null;
 		}
-		const response = await fetch(`${API_URL}/api/appointments/book`);
+		const response = await fetch(`${API_URL}/api/appointments/book`, {
+			cache: "no-store",
+		});
 		if (!response.ok) {
 			throw new Error("Failed to fetch appointments");
 		}

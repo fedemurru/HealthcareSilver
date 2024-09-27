@@ -1,5 +1,4 @@
 // components/AppointmentsTable.js
-import { supabase } from "../lib/supabaseClient";
 
 const AppointmentsTable = ({
 	appointments,
