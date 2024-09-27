@@ -72,6 +72,13 @@ const AdminDashboard = () => {
 			// Verifica se l'appuntamento è stato aggiornato correttamente
 			if (updatedAppointment) {
 				toast.success("Appointment rescheduled successfully");
+
+				// Chiudiamo il modal
+				closeRescheduleModal();
+
+				// Ricarica l'elenco degli appuntamenti aggiornato
+				const data = await fetchAppointments();
+				setAppointments(data);
 			} else {
 				toast.error("Failed to reschedule appointment");
 			}
